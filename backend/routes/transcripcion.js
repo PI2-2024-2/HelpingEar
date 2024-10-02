@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const { transcribirAudio } = require('../services/speechServices');
+const { traducirTexto } = require('../services/translationServices');
 
 // Crear el enrutador de Express
 const router = express.Router();
@@ -40,7 +41,13 @@ router.post('/transcribir', upload.single('audio'), async (req, res) => {
         const audioBytes = req.file.buffer.toString('base64');
         const resultado = await transcribirAudio(audioBytes, formato.encoding, formato.sampleRateHertz);
 
-        res.json(resultado);
+        const textoTraducido = await traducirTexto(resultado.transcripcionSinTiempos, 'es', 'en');  // Traducir de español a inglés
+
+        res.json({
+            transcripcion: resultado.transcripcionSinTiempos,
+            transcripcionConTiempos: resultado.transcripcionConTiempos,
+            traduccion: textoTraducido  
+        });
 
     } catch (error) {
         console.error('Error durante la transcripción:', error);

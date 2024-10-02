@@ -1,2 +1,4 @@
 node_modules
 credenciales-speech.json
+credenciales-translate.json
+.env
