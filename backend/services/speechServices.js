@@ -1,9 +1,13 @@
 const speech = require('@google-cloud/speech');
 const path = require('path');
+require('dotenv').config();
+
+// Ruta al env de las credenciales de tranlate
+const credenciales_speech = JSON.parse(process.env.GOOGLE_SPEECH_CREDENTIALS);
 
 // Inicializa el cliente de Google Cloud Speech con credenciales específicas
 const clienteSpeech = new speech.SpeechClient({
-    keyFilename: path.join(__dirname, '../credenciales-speech.json')
+    credentials: credenciales_speech
 });
 
 const transcribirAudio = async (audioBytes, encoding, sampleRateHertz) => {
