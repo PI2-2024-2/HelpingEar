@@ -9,6 +9,10 @@ function UploadPage() {
   const [isFileValid, setIsFileValid] = useState(false); // Para habilitar/deshabilitar el botón
   const navigate = useNavigate();
 
+  const generateTranscription = (fileName) => {
+    return `Esta es una transcripción simulada para el archivo ${fileName}. Se genera automáticamente al hacer clic en "Generar transcripción".`;
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) {
@@ -41,9 +45,10 @@ function UploadPage() {
     if (!fileName) {
       setError("Hubo un error con el archivo");
     } else {
+      const transcripción = generateTranscription(fileName)
       // Aquí es donde mandas el archivo al backend
       console.log("Generando subtítulos para", fileName);
-      navigate("/subtitles", { state: { fileName, fileURL } });
+      navigate("/subtitles", { state: { fileName, fileURL, transcripción } });
     }
   };
 
@@ -72,7 +77,7 @@ function UploadPage() {
           </div>
         )}
         <button onClick={handleGenerateSubtitles} disabled={!isFileValid}>
-          Generar subtítulos
+          Generar transcripción
         </button>
       </div>
     </div>
