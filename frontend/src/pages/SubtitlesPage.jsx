@@ -5,10 +5,11 @@ import logo from '../assets/logo.png';
 function SubtitlesPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { fileName, fileURL, transcripcion, transcripcionConTiempos } = location.state || {};
+  const { fileName, fileURL, transcripcion, transcripcionConTiempos, traduccion } = location.state || {};
   const audioRef = useRef(null);
   const [currentSubtitle, setCurrentSubtitle] = useState('Los subtítulos aparecerán aquí');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false); // Estado para alternar entre traducción y transcripción
 
   // Parsear transcripcionConTiempos
   const parseSubtitles = (transcriptionWithTimestamps) => {
@@ -40,12 +41,11 @@ function SubtitlesPage() {
     setCurrentSubtitle(currentSub ? currentSub.text : 'Los subtítulos aparecerán aquí');
   };
 
-  // Función para descargar la transcripción
-  const handleDownloadTranscription = () => {
+  const handleDownload = (content, filename) => {
     const element = document.createElement('a');
-    const file = new Blob([transcripcion], { type: 'text/plain' });
+    const file = new Blob([content], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    element.download = `${fileName}_transcription.txt`;
+    element.download = filename;
     document.body.appendChild(element);
     element.click();
   };
@@ -54,8 +54,11 @@ function SubtitlesPage() {
     navigate('/');
   };
 
+  const toggleTranslation = () => {
+    setShowTranslation(!showTranslation);
+  };
+
   useEffect(() => {
-    // Asegurarnos de que el audio se resetea al cargar la página
     const audio = audioRef.current;
     audio.addEventListener('timeupdate', handleAudioTimeUpdate);
     return () => {
@@ -90,10 +93,21 @@ function SubtitlesPage() {
 
         <div className="right-column">
           <div className="transcription">
-            <h3>Transcripción Completa:</h3>
-            <p>{transcripcion}</p>
-            <button className="download-button" onClick={handleDownloadTranscription}>
-              Descargar Transcripción
+            <h3>{showTranslation ? 'Traducción al Inglés' : 'Transcripción Completa'}</h3>
+            <p>{showTranslation ? traduccion : transcripcion}</p>
+            <button className="toggle-translation-button" onClick={toggleTranslation}>
+              {showTranslation ? 'Volver a la Transcripción' : 'Traducir al Inglés'}
+            </button>
+            <button
+              className="download-button"
+              onClick={() =>
+                handleDownload(
+                  showTranslation ? traduccion : transcripcion,
+                  showTranslation ? `${fileName}_translation.txt` : `${fileName}_transcription.txt`
+                )
+              }
+            >
+              {showTranslation ? 'Descargar Traducción' : 'Descargar Transcripción'}
             </button>
           </div>
           <button className="back-button" onClick={handleBack}>

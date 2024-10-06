@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 
 function UploadPage() {
+  const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState(null);
   const [fileURL, setFileURL] = useState(null);
   const [error, setError] = useState(null);
@@ -10,57 +11,60 @@ function UploadPage() {
   const navigate = useNavigate();
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) {
+      setFile(null);
       setFileName(null);
       setFileURL(null);
       setIsFileValid(false);
       return;
     }
 
-    const supportedFormats = ["audio/mp3", "audio/wav", "audio/x-m4a"];
-    if (!supportedFormats.includes(file.type)) {
+    const supportedFormats = ["audio/mp3", "audio/wav", "audio/x-m4a", "audio/ogg"];
+    if (!supportedFormats.includes(selectedFile.type)) {
       setError("Formato de audio no disponible");
+      setFile(null);
       setFileName(null);
       setFileURL(null);
       setIsFileValid(false);
-    } else if (file.size > 10 * 1024 * 1024) {
+    } else if (selectedFile.size > 10 * 1024 * 1024) {
       setError("El archivo supera el tamaño máximo de 10MB");
+      setFile(null);
       setFileName(null);
       setFileURL(null);
       setIsFileValid(false);
     } else {
       setError(null);
-      setFileName(file.name);
-      setFileURL(URL.createObjectURL(file));
+      setFile(selectedFile); // Guardamos el archivo real
+      setFileName(selectedFile.name);
+      setFileURL(URL.createObjectURL(selectedFile));
       setIsFileValid(true);
     }
   };
 
   const handleGenerateSubtitles = async () => {
-    if (!fileName) {
+    if (!file) {
       setError("Hubo un error con el archivo");
       return;
     }
 
     // Crear un FormData para enviar el archivo al backend
-    ////////////////////////////////////////////////////////////////////
-    // Actualizar las rutas 
     const formData = new FormData();
-    formData.append('file', fileURL); // Aqui hay que ponerlo segun como se espere en el backend**
+    formData.append("audio", file); // Enviar el archivo real
 
     try {
-      const response = await fetch('http://<url>/transcribe', { //Aqui poner la ruta para el fetch**
-        method: 'POST',
+      const response = await fetch("http://localhost:3000/transcribir", { // Cambia esto según tu backend
+        method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Error al generar la transcripción');
+        throw new Error("Error al generar la transcripción");
       }
 
       const data = await response.json();
-      navigate("/subtitles", { state: { fileName, fileURL, ...data } }); // Mandar el JSON completo
+      // Redirigir a la página de subtítulos con el archivo y la transcripción/traducción
+      navigate("/subtitles", { state: { fileName, fileURL, ...data } });
     } catch (error) {
       setError(error.message);
     }
@@ -75,13 +79,13 @@ function UploadPage() {
         <input
           type="file"
           onChange={handleFileChange}
-          accept=".mp3,.wav,.m4a"
+          accept=".mp3,.wav,.m4a,.ogg"
         />
         <p className="file-name">
           {fileName ? fileName : "No se eligió ningún archivo"}
         </p>
         {error && <p className="error-message">{error}</p>}
-        <p>Formatos soportados: MP3, WAV, M4A (máx. 10MB)</p>
+        <p>Formatos soportados: MP3, WAV, M4A, OGG (máx. 10MB)</p>
         {fileURL && (
           <div>
             <audio controls>
