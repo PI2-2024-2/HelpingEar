@@ -6,12 +6,8 @@ function UploadPage() {
   const [fileName, setFileName] = useState(null);
   const [fileURL, setFileURL] = useState(null);
   const [error, setError] = useState(null);
-  const [isFileValid, setIsFileValid] = useState(false); // Para habilitar/deshabilitar el botón
+  const [isFileValid, setIsFileValid] = useState(false);
   const navigate = useNavigate();
-
-  const generateTranscription = (fileName) => {
-    return `Esta es una transcripción simulada para el archivo ${fileName}. Se genera automáticamente al hacer clic en "Generar transcripción".`;
-  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -37,18 +33,36 @@ function UploadPage() {
       setError(null);
       setFileName(file.name);
       setFileURL(URL.createObjectURL(file));
-      setIsFileValid(true); // Archivo válido
+      setIsFileValid(true);
     }
   };
 
-  const handleGenerateSubtitles = () => {
+  const handleGenerateSubtitles = async () => {
     if (!fileName) {
       setError("Hubo un error con el archivo");
-    } else {
-      const transcripción = generateTranscription(fileName)
-      // Aquí es donde mandas el archivo al backend
-      console.log("Generando subtítulos para", fileName);
-      navigate("/subtitles", { state: { fileName, fileURL, transcripción } });
+      return;
+    }
+
+    // Crear un FormData para enviar el archivo al backend
+    ////////////////////////////////////////////////////////////////////
+    // Actualizar las rutas 
+    const formData = new FormData();
+    formData.append('file', fileURL); // Aqui hay que ponerlo segun como se espere en el backend**
+
+    try {
+      const response = await fetch('http://<url>/transcribe', { //Aqui poner la ruta para el fetch**
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al generar la transcripción');
+      }
+
+      const data = await response.json();
+      navigate("/subtitles", { state: { fileName, fileURL, ...data } }); // Mandar el JSON completo
+    } catch (error) {
+      setError(error.message);
     }
   };
 

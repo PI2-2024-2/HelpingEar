@@ -1,24 +1,26 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png'; 
 
 function SubtitlesPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { fileName, fileURL, transcription } = location.state || {}; 
-  const simulatedTranscription = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-   Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-   Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`;
+  const { fileName, fileURL, transcripcion, transcripcionConTiempos } = location.state || {};
+  const audioRef = useRef(null);
   const [currentSubtitle, setCurrentSubtitle] = useState('Los subtítulos aparecerán aquí');
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef(null);
 
-  // Simular subtítulos en tiempo real
-  const subtitles = [
-    { startTime: 0, endTime: 5, text: 'Esto es un subtítulo en tiempo real 1.' },
-    { startTime: 5, endTime: 10, text: 'Esto es un subtítulo en tiempo real 2.' },
-  ];
+  // Parsear transcripcionConTiempos
+  const parseSubtitles = (transcriptionWithTimestamps) => {
+    const subtitleArray = transcriptionWithTimestamps.split('...').map((sub) => {
+      const [text, times] = sub.split(' (start');
+      const [start, end] = times.replace('end: ', '').replace(')', '').split(', ').map(Number);
+      return { startTime: start, endTime: end, text: text.trim() };
+    });
+    return subtitleArray;
+  };
+
+  const subtitles = parseSubtitles(transcripcionConTiempos);
 
   const togglePlayPause = () => {
     const audio = audioRef.current;
@@ -41,7 +43,7 @@ function SubtitlesPage() {
   // Función para descargar la transcripción
   const handleDownloadTranscription = () => {
     const element = document.createElement('a');
-    const file = new Blob([transcription], { type: 'text/plain' });
+    const file = new Blob([transcripcion], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
     element.download = `${fileName}_transcription.txt`;
     document.body.appendChild(element);
@@ -52,10 +54,18 @@ function SubtitlesPage() {
     navigate('/');
   };
 
+  useEffect(() => {
+    // Asegurarnos de que el audio se resetea al cargar la página
+    const audio = audioRef.current;
+    audio.addEventListener('timeupdate', handleAudioTimeUpdate);
+    return () => {
+      audio.removeEventListener('timeupdate', handleAudioTimeUpdate);
+    };
+  }, []);
+
   return (
     <div className="app-container">
       <div className="split-container">
-        {/* Columna izquierda: Subtítulos en tiempo real y reproductor */}
         <div className="left-column">
           <div className="header">
             <img src={logo} alt="HelpingEar Logo" className="logo" />
@@ -63,7 +73,7 @@ function SubtitlesPage() {
             <p className="subtitle">Subtítulos para: {fileName}</p>
           </div>
           <div className="audio-player">
-            <audio ref={audioRef} onTimeUpdate={handleAudioTimeUpdate} controls className="audio">
+            <audio ref={audioRef} controls className="audio">
               <source src={fileURL} type="audio/mpeg" />
               Tu navegador no soporta el elemento de audio.
             </audio>
@@ -78,11 +88,10 @@ function SubtitlesPage() {
           </div>
         </div>
 
-        {/* Columna derecha: Transcripción completa */}
         <div className="right-column">
           <div className="transcription">
             <h3>Transcripción Completa:</h3>
-            <p>{simulatedTranscription}</p>
+            <p>{transcripcion}</p>
             <button className="download-button" onClick={handleDownloadTranscription}>
               Descargar Transcripción
             </button>
