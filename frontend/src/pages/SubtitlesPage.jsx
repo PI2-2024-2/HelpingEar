@@ -45,13 +45,20 @@ function SubtitlesPage() {
   
   const togglePlayPause = () => {
     const audio = audioRef.current;
-
-    if (isPlaying) {
-      audio.pause();
-    } else {
+  
+    if (audio.paused) {
       audio.play();
+    } else {
+      audio.pause();
     }
-    setIsPlaying(!isPlaying);
+  };
+  
+  const handleAudioPlay = () => {
+    setIsPlaying(true);
+  };
+  
+  const handleAudioPause = () => {
+    setIsPlaying(false);
   };
 
   const handleAudioTimeUpdate = () => {
@@ -89,10 +96,15 @@ function SubtitlesPage() {
     const audio = audioRef.current;
     audio.addEventListener('timeupdate', handleAudioTimeUpdate);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('play', handleAudioPlay);
+    audio.addEventListener('pause', handleAudioPause);
+
 
     return () => {
       audio.removeEventListener('timeupdate', handleAudioTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('play', handleAudioPlay);
+      audio.removeEventListener('pause', handleAudioPause);
     };
   }, []);
 
