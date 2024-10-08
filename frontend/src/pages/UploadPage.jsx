@@ -53,7 +53,7 @@ function UploadPage() {
     formData.append("audio", file); // Enviar el archivo real
 
     try {
-      const response = await fetch("http://helping-ear-1vmw.vercel.app/transcribir", { // Cambia esto según tu backend
+      const response = await fetch("https://helping-ear-1vmw.vercel.app/transcribir", { // Cambia esto según tu backend
         method: "POST",
         body: formData,
       });
