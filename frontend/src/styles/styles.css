@@ -1,0 +1,205 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.upload-box {
+  background-color: #f0f0f0;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 400px;
+}
+
+.logo {
+  width: 100px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+p {
+  margin: 10px 0;
+  color: #555;
+}
+
+input[type="file"] {
+  margin: 10px 0;
+}
+
+.file-name {
+  font-size: 14px;
+  color: #666;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Estilos para la página dividida en dos columnas */
+.split-container {
+  display: flex;
+  justify-content: center; /* Centra las columnas horizontalmente */
+  align-items: center; /* Centra las columnas verticalmente */
+  width: 80%;
+  max-width: 1200px;
+  height: 80%; /* Controlar el tamaño vertical del contenido */
+}
+.left-column, .right-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centra el contenido de las columnas */
+  align-items: center;
+  flex: 1;
+  background-color: #f0f0f0;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 10px; /* Separación entre columnas */
+  max-height: 100%;
+  text-align: center; /* Centra el texto */
+}
+
+/* Estilo para la columna izquierda (subtítulos en tiempo real y audio) */
+.left-column {
+  flex: 1;
+  background-color: #f0f0f0;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-right: 20px;
+}
+
+/* Estilo para la columna derecha (transcripción completa) */
+.right-column {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para la caja de subtítulos en tiempo real */
+.subtitle-box {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 18px;
+  color: #555;
+  min-height: 100px;
+  margin-top: 20px;
+}
+
+/* Estilo para el reproductor de audio */
+.audio-player {
+  margin-bottom: 20px;
+}
+.play-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px; /* Espacio superior */
+}
+
+
+/* Botón de reproducción */
+.play-button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.play-button:hover {
+  background-color: #45a049;
+}
+
+.transcription {
+  margin-top: 20px;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  max-height: 300px; /* Limitar el alto de la transcripción */
+  overflow-y: auto;  /* Habilitar el scroll si el texto es muy largo */
+}
+
+.download-button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.download-button:hover {
+  background-color: #45a049;
+}
+
+/* Botón de regreso */
+.back-button {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.back-button:hover {
+  background-color: #555;
+}
