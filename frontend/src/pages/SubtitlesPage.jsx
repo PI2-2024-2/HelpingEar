@@ -1,30 +1,51 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png'; 
+import logo from '../assets/logo.png';
 
 function SubtitlesPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { fileName, fileURL, transcripcion, transcripcionConTiempos, traduccion } = location.state || {};
+
   const audioRef = useRef(null);
-  const [currentSubtitle, setCurrentSubtitle] = useState('Los subtítulos aparecerán aquí');
+  const [currentSubtitle, setCurrentSubtitle] = useState('Los subtitulos apareceran aqui');
   const [isPlaying, setIsPlaying] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false); // Estado para alternar entre traducción y transcripción
 
+  const formatTime = (time) => {
+    return parseFloat(time.split('.').length === 3 ? time.replace(/\.(?=[^.]*$)/, '') : time);
+  }
+
   // Parsear transcripcionConTiempos
-  const parseSubtitles = (transcriptionWithTimestamps) => {
-    const subtitleArray = transcriptionWithTimestamps.split('...').map((sub) => {
-      const [text, times] = sub.split(' (start');
-      const [start, end] = times.replace('end: ', '').replace(')', '').split(', ').map(Number);
+  const parseSubtitles = (transcriptionWithTimestamps, n) => {
+    const subtitleArray = transcriptionWithTimestamps.split(')').filter(Boolean).map((sub) => {
+      const [text, times] = sub.split(' (start:');
+      const [start1, end1] = times.replace('end: ', '').replace(')', '').split(', ');
+      
+      const start = formatTime(start1.trim());
+      const end = formatTime(end1.trim());
+      
       return { startTime: start, endTime: end, text: text.trim() };
     });
-    return subtitleArray;
+
+    const result = [];
+    for (let i = 0; i < subtitleArray.length; i += n) {
+      const group = subtitleArray.slice(i, i + n);
+      const start = group[0].startTime;
+      const end = group[group.length - 1].endTime;
+      const text = group.map(item => item.text).join(' ');
+      
+      result[i / n] = { startTime: start, endTime: end, text: text };
+    }
+
+    return result;
   };
 
-  const subtitles = parseSubtitles(transcripcionConTiempos);
-
+  const subtitles = parseSubtitles(transcripcionConTiempos, 5);
+  
   const togglePlayPause = () => {
     const audio = audioRef.current;
+
     if (isPlaying) {
       audio.pause();
     } else {
@@ -35,10 +56,12 @@ function SubtitlesPage() {
 
   const handleAudioTimeUpdate = () => {
     const currentTime = audioRef.current.currentTime;
+    
     const currentSub = subtitles.find(
       (sub) => currentTime >= sub.startTime && currentTime < sub.endTime
     );
-    setCurrentSubtitle(currentSub ? currentSub.text : 'Los subtítulos aparecerán aquí');
+
+    currentSub && setCurrentSubtitle(currentSub.text);
   };
 
   const handleDownload = (content, filename) => {
@@ -54,6 +77,10 @@ function SubtitlesPage() {
     navigate('/');
   };
 
+  const handleEnded = () => {
+    setIsPlaying(false); 
+  };  
+
   const toggleTranslation = () => {
     setShowTranslation(!showTranslation);
   };
@@ -61,8 +88,11 @@ function SubtitlesPage() {
   useEffect(() => {
     const audio = audioRef.current;
     audio.addEventListener('timeupdate', handleAudioTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
+
     return () => {
       audio.removeEventListener('timeupdate', handleAudioTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
     };
   }, []);
 

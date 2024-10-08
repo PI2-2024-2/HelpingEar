@@ -20,7 +20,7 @@ function UploadPage() {
       return;
     }
 
-    const supportedFormats = ["audio/mp3", "audio/wav", "audio/x-m4a", "audio/ogg"];
+    const supportedFormats = ["audio/mp3", "audio/wav", "audio/x-m4a", "audio/ogg", "audio/mpeg"];
     if (!supportedFormats.includes(selectedFile.type)) {
       setError("Formato de audio no disponible");
       setFile(null);

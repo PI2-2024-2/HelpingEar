@@ -17,6 +17,7 @@ const audioFormatos = {
     'audio/wave': { encoding: 'LINEAR16', sampleRateHertz: 48000 }, 
 };
 
+
 // Ruta de trascripción
 router.post('/transcribir', upload.single('audio'), async (req, res) => {
     try {
@@ -46,7 +47,7 @@ router.post('/transcribir', upload.single('audio'), async (req, res) => {
         res.json({
             transcripcion: resultado.transcripcionSinTiempos,
             transcripcionConTiempos: resultado.transcripcionConTiempos,
-            traduccion: textoTraducido  
+            traduccion: textoTraducido
         });
 
     } catch (error) {
