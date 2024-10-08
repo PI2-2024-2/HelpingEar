@@ -101,9 +101,9 @@ function SubtitlesPage() {
 
 
     return () => {
-      audio.removeEventListener('timeupdate', handleAudioTimeUpdate);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('play', handleAudioPlay);
+      audio.removeEventListener('timeupdate', handleAudioTimeUpdate);    // ACTUALIZAR
+      audio.removeEventListener('ended', handleEnded);                   // REPRODUCTOR FINALIZADO
+      audio.removeEventListener('play', handleAudioPlay);                
       audio.removeEventListener('pause', handleAudioPause);
     };
   }, []);
