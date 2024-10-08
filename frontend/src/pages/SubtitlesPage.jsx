@@ -12,13 +12,12 @@ function SubtitlesPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false); // Estado para alternar entre traducción y transcripción
 
+  const formatTime = (time) => {
+    return parseFloat(time.split('.').length === 3 ? time.replace(/\.(?=[^.]*$)/, '') : time);
+  }
+
   // Parsear transcripcionConTiempos
-  const parseSubtitles = (transcriptionWithTimestamps) => {
-
-    const formatTime = (time) => {
-      return time.split('.').length === 3 ? time.replace(/\.(?=[^.]*$)/, '') : time;
-    }
-
+  const parseSubtitles = (transcriptionWithTimestamps, n) => {
     const subtitleArray = transcriptionWithTimestamps.split(')').filter(Boolean).map((sub) => {
       const [text, times] = sub.split(' (start:');
       const [start1, end1] = times.replace('end: ', '').replace(')', '').split(', ');
@@ -28,13 +27,22 @@ function SubtitlesPage() {
       
       return { startTime: start, endTime: end, text: text.trim() };
     });
-    
-    return subtitleArray;
+
+    const result = [];
+    for (let i = 0; i < subtitleArray.length; i += n) {
+      const group = subtitleArray.slice(i, i + n);
+      const start = group[0].startTime;
+      const end = group[group.length - 1].endTime;
+      const text = group.map(item => item.text).join(' ');
+      
+      result[i / n] = { startTime: start, endTime: end, text: text };
+    }
+
+    return result;
   };
 
-  const subtitles = parseSubtitles(transcripcionConTiempos);
-  //console.log(subtitles);
-
+  const subtitles = parseSubtitles(transcripcionConTiempos, 5);
+  
   const togglePlayPause = () => {
     const audio = audioRef.current;
 
@@ -46,20 +54,14 @@ function SubtitlesPage() {
     setIsPlaying(!isPlaying);
   };
 
-  console.log(subtitles);
-
   const handleAudioTimeUpdate = () => {
     const currentTime = audioRef.current.currentTime;
     
-    console.log(currentTime);
-
     const currentSub = subtitles.find(
       (sub) => currentTime >= sub.startTime && currentTime < sub.endTime
     );
 
-    console.log(currentSub);
-    //setCurrentSubtitle(currentSub ? currentSub.text : 'Los subtítulos aparecerán aquí');
-    setCurrentSubtitle(currentSub.text);
+    currentSub && setCurrentSubtitle(currentSub.text);
   };
 
   const handleDownload = (content, filename) => {
@@ -75,6 +77,10 @@ function SubtitlesPage() {
     navigate('/');
   };
 
+  const handleEnded = () => {
+    setIsPlaying(false); 
+  };  
+
   const toggleTranslation = () => {
     setShowTranslation(!showTranslation);
   };
@@ -82,8 +88,11 @@ function SubtitlesPage() {
   useEffect(() => {
     const audio = audioRef.current;
     audio.addEventListener('timeupdate', handleAudioTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
+
     return () => {
       audio.removeEventListener('timeupdate', handleAudioTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
     };
   }, []);
 
